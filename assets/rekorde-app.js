@@ -56,20 +56,4 @@
     ${R.torschuetzenkoenige.map((k) => `<div class="kanone"><span class="yr">${esc(k.season)}</span>
       <span class="nm">${esc(k.name)}${k.note ? `<small>${esc(k.note)}</small>` : ""}</span>
       <span class="g">${k.goals} <small>Tore</small></span></div>`).join("")}`;
-
-  // aktiven Bereich in der Navigation markieren
-  const links = [...document.querySelectorAll("#navlinks a")];
-  const targets = links.map((a) => document.getElementById(a.getAttribute("href").slice(1))).filter(Boolean);
-  function markActive() {
-    const y = 90;
-    let current = targets[0];
-    for (const t of targets) if (t.getBoundingClientRect().top - y <= 0) current = t;
-    links.forEach((a) => {
-      const on = a.getAttribute("href") === "#" + current.id;
-      a.classList.toggle("active", on);
-      if (on) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
-    });
-  }
-  window.addEventListener("scroll", markActive, { passive: true });
-  markActive();
 })();

@@ -254,6 +254,7 @@
   };
 
   function focusPlayer(id, scroll) {
+    if (window.WB && window.WB.showPage) window.WB.showPage("aktuell", { keepScroll: true });
     state.focus = state.focus === id && !scroll ? null : id;
     renderTable();
     renderCard();

@@ -90,6 +90,7 @@
   }
 
   function openMatch(id, scroll) {
+    if (WB.showPage) WB.showPage("spiele", { keepScroll: true });
     state.match = String(id);
     renderSchedule();
     renderReport();

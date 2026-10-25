@@ -752,3 +752,9 @@ table.fin-table td.small { font-size: 12px; color: var(--muted); white-space: no
 table.fin-table td.l { white-space: normal; }
 .srcs { margin-top: 10px; font-size: 13px; }
 .srcs a { color: var(--werder); }
+
+/* ---------- Seiten (Reiter) ---------- */
+.page { display: grid; gap: 20px; min-width: 0; align-content: start; }
+.page[hidden] { display: none !important; }
+.page > .block:first-child { padding-top: 14px; }
+main { min-height: 70vh; }

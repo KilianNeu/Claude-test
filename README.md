@@ -16,7 +16,7 @@ Inoffizielle Fan-Statistikseite: die letzten 20 Ligaspielzeiten von Werder Breme
 - **Spieler**: Rekordtorschützen, Rekordspieler, Vorlagengeber, Karten
 - **Transfers**: teuerste Ein- und Verkäufe, Rückkehrer
 - **Titel**: Meisterschaften, Pokalsiege, Torschützenkönige
-- Navigationsleiste oben zu allen Bereichen
+- Navigationsleiste oben: jeder Bereich ist eine eigene Unterseite (Reiter). Direktlinks wie `#finanzen` oder `#spieler-1024292` öffnen die jeweilige Seite
 
 Reines HTML/CSS/JS ohne Build-Schritt. Lokal einfach `index.html` im Browser öffnen.
 

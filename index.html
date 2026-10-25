@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Werder Saisonvergleich</title>
-  <meta name="description" content="20 Jahre Werder Bremen: alle Ligaspielzeiten von 2006/07 bis 2025/26 interaktiv im Vergleich.">
+  <meta name="description" content="Werder Bremen in Zahlen: laufende Saison mit Spielberichten, 20 Jahre Historie, Rekorde, Transfers und Finanzen.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1 31 16 16 31 1 16Z' fill='%231D9053'/%3E%3Cpath d='M16 7 25 16 16 25 7 16Z' fill='white'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
       <div>
         <p class="eyebrow">Inoffizielle Fan-Statistik</p>
         <h1>Werder Bremen <span>Saison für Saison</span></h1>
-        <p class="lede">20 Spielzeiten von 2006/07 bis 2025/26. Fahr mit der Maus über eine Saison, um ihre Daten zu sehen. Klick sie an, um sie zu markieren und zwei Saisons direkt zu vergleichen.</p>
+        <p class="lede">Die laufende Saison Spiel für Spiel, 20 Jahre Historie, Spielerrekorde, Transfers und Finanzen. Such dir oben einen Bereich aus.</p>
       </div>
     </div>
     <div class="stripes" aria-hidden="true"></div>
@@ -43,6 +43,7 @@
   </nav>
 
   <main class="wrap">
+    <div class="page" data-page="aktuell" id="page-aktuell">
     <section class="block current" id="aktuell">
       <div class="current-hero" id="cur-hero"></div>
       <div class="leaders" id="leaders"></div>
@@ -89,7 +90,9 @@
         </article>
       </div>
     </section>
+    </div>
 
+    <div class="page" data-page="spiele" id="page-spiele" hidden>
     <section class="block" id="spiele">
       <div class="block-head">
         <p class="eyebrow-dark">Spiele 2026/27</p>
@@ -103,7 +106,9 @@
         <article class="card" id="halbzeit"></article>
       </div>
     </section>
+    </div>
 
+    <div class="page" data-page="liga" id="page-liga" hidden>
     <section class="block" id="liga">
       <div class="block-head">
         <p class="eyebrow-dark">Liga</p>
@@ -115,7 +120,9 @@
         <article class="card" id="prognose"></article>
       </div>
     </section>
+    </div>
 
+    <div class="page" data-page="verein" id="page-verein" hidden>
     <section class="block" id="verein">
       <div class="block-head">
         <p class="eyebrow-dark">Verein</p>
@@ -131,7 +138,9 @@
         <article class="card" id="transfers26"></article>
       </div>
     </section>
+    </div>
 
+    <div class="page" data-page="finanzen" id="page-finanzen" hidden>
     <section class="block" id="finanzen">
       <div class="block-head">
         <p class="eyebrow-dark">Finanzen</p>
@@ -140,7 +149,9 @@
       </div>
       <div id="fin-root"></div>
     </section>
+    </div>
 
+    <div class="page" data-page="fans" id="page-fans" hidden>
     <section class="block" id="fans">
       <div class="block-head">
         <p class="eyebrow-dark">Fans</p>
@@ -152,8 +163,16 @@
       </div>
       <article class="card" id="momente"></article>
     </section>
+    </div>
 
-    <div class="anchor" id="saisons"></div>
+    <div class="page" data-page="saisons" id="page-saisons" hidden>
+    <section class="block" id="saisons">
+      <div class="block-head">
+        <p class="eyebrow-dark">Saisons</p>
+        <h2 class="block-title">20 Jahre im Vergleich</h2>
+        <p class="sub">Alle Ligaspielzeiten von 2006/07 bis 2025/26. Fahr mit der Maus über eine Saison, klick sie an und vergleiche zwei Saisons direkt.</p>
+      </div>
+    </section>
     <section class="kpis" id="kpis" aria-label="Kennzahlen"></section>
 
     <section class="card">
@@ -203,7 +222,9 @@
         <table id="table"></table>
       </div>
     </section>
+    </div>
 
+    <div class="page" data-page="verlauf" id="page-verlauf" hidden>
     <section class="card anchor-target" id="verlauf">
       <div class="card-head">
         <div>
@@ -221,7 +242,9 @@
       </div>
       <div class="pinfo" id="pinfo" aria-live="polite"></div>
     </section>
+    </div>
 
+    <div class="page" data-page="spieler" id="page-spieler" hidden>
     <section class="block" id="spieler">
       <div class="block-head">
         <p class="eyebrow-dark">Spieler</p>
@@ -235,7 +258,9 @@
         <article class="card rank-card" id="karten"></article>
       </div>
     </section>
+    </div>
 
+    <div class="page" data-page="transfers" id="page-transfers" hidden>
     <section class="block" id="transfers">
       <div class="block-head">
         <p class="eyebrow-dark">Transfers</p>
@@ -248,7 +273,9 @@
       </div>
       <article class="card" id="rueckkehrer"></article>
     </section>
+    </div>
 
+    <div class="page" data-page="titel" id="page-titel" hidden>
     <section class="block" id="titel">
       <div class="block-head">
         <p class="eyebrow-dark">Titel</p>
@@ -259,6 +286,8 @@
         <article class="card" id="kanonen"></article>
       </div>
     </section>
+    </div>
+
   </main>
 
   <footer class="wrap foot">
@@ -276,5 +305,6 @@
   <script src="assets/aktuell.js"></script>
   <script src="assets/spiele-app.js"></script>
   <script src="assets/finanzen-app.js"></script>
+  <script src="assets/router.js"></script>
 </body>
 </html>
