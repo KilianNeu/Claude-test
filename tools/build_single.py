@@ -5,6 +5,7 @@
 
 Gedacht für Hosts, die nur eine Datei annehmen, z. B. ein Claude-Artifact.
 """
+import datetime
 import os
 import re
 import sys
@@ -29,6 +30,7 @@ def main(out):
         sys.exit("Nicht eingebettete Datei gefunden")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:
+        fh.write("<!-- Erzeugt mit tools/build_single.py am %s. Nicht von Hand bearbeiten, Quelle ist das Repo. -->\n" % datetime.date.today().isoformat())
         fh.write(head + "\n" + body)
     print(f"{out}: {os.path.getsize(out) // 1024} KB")
 
