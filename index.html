@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <header class="hero">
+  <header class="hero" id="top">
     <div class="wrap hero-inner">
       <div class="raute" aria-hidden="true"><span>W</span></div>
       <div>
@@ -23,8 +23,21 @@
     </div>
     <div class="stripes" aria-hidden="true"></div>
   </header>
+  <nav class="topnav" aria-label="Bereiche">
+    <div class="wrap topnav-inner">
+      <a class="brand" href="#top"><span class="brand-raute" aria-hidden="true"></span>Werder Statistik</a>
+      <div class="navlinks" id="navlinks">
+        <a href="#saisons">Saisons</a>
+        <a href="#verlauf">Saisonverlauf</a>
+        <a href="#spieler">Spieler</a>
+        <a href="#transfers">Transfers</a>
+        <a href="#titel">Titel</a>
+      </div>
+    </div>
+  </nav>
 
   <main class="wrap">
+    <div class="anchor" id="saisons"></div>
     <section class="kpis" id="kpis" aria-label="Kennzahlen"></section>
 
     <section class="card">
@@ -47,23 +60,6 @@
       <article class="card compare" id="compare" aria-live="polite"></article>
     </section>
 
-    <section class="card" id="verlauf">
-      <div class="card-head">
-        <div>
-          <h2 id="progress-title">Saisonverlauf</h2>
-          <p class="sub" id="progress-sub">Stand nach jedem Spieltag. Die laufende Saison gegen die letzten 20 Jahre.</p>
-        </div>
-        <div class="seg" role="tablist" aria-label="Kennzahl im Saisonverlauf" id="progress-tabs"></div>
-      </div>
-      <div class="live" id="live"></div>
-      <label class="check"><input type="checkbox" id="bl2-toggle"> Zweitliga-Saison 2021/22 einbeziehen</label>
-      <div class="legend" id="progress-legend"></div>
-      <div class="chart-wrap">
-        <svg id="progress" class="viz" role="img" aria-labelledby="progress-title progress-sub"></svg>
-        <div class="tooltip" id="ptooltip" role="status" aria-live="polite"></div>
-      </div>
-      <div class="pinfo" id="pinfo" aria-live="polite"></div>
-    </section>
 
     <section class="card">
       <div class="card-head">
@@ -91,14 +87,72 @@
         <table id="table"></table>
       </div>
     </section>
+
+    <section class="card anchor-target" id="verlauf">
+      <div class="card-head">
+        <div>
+          <h2 id="progress-title">Saisonverlauf</h2>
+          <p class="sub" id="progress-sub">Stand nach jedem Spieltag. Die laufende Saison gegen die letzten 20 Jahre.</p>
+        </div>
+        <div class="seg" role="tablist" aria-label="Kennzahl im Saisonverlauf" id="progress-tabs"></div>
+      </div>
+      <div class="live" id="live"></div>
+      <label class="check"><input type="checkbox" id="bl2-toggle"> Zweitliga-Saison 2021/22 einbeziehen</label>
+      <div class="legend" id="progress-legend"></div>
+      <div class="chart-wrap">
+        <svg id="progress" class="viz" role="img" aria-labelledby="progress-title progress-sub"></svg>
+        <div class="tooltip" id="ptooltip" role="status" aria-live="polite"></div>
+      </div>
+      <div class="pinfo" id="pinfo" aria-live="polite"></div>
+    </section>
+
+    <section class="block" id="spieler">
+      <div class="block-head">
+        <p class="eyebrow-dark">Spieler</p>
+        <h2 class="block-title">Rekorde der Werder-Profis</h2>
+        <p class="sub">Tore und Einsätze in der Bundesliga über alle Zeiten, Vorlagen seit sie gezählt werden.</p>
+      </div>
+      <div class="rank-grid">
+        <article class="card rank-card" data-list="tore"></article>
+        <article class="card rank-card" data-list="einsaetze"></article>
+        <article class="card rank-card" data-list="vorlagen"></article>
+        <article class="card rank-card" id="karten"></article>
+      </div>
+    </section>
+
+    <section class="block" id="transfers">
+      <div class="block-head">
+        <p class="eyebrow-dark">Transfers</p>
+        <h2 class="block-title">Ein- und Verkäufe</h2>
+        <p class="sub">Die größten Ablösesummen und die Spieler, die den Weg zurück an die Weser fanden.</p>
+      </div>
+      <div class="rank-grid">
+        <article class="card rank-card" data-list="einkaeufe"></article>
+        <article class="card rank-card" data-list="verkaeufe"></article>
+      </div>
+      <article class="card" id="rueckkehrer"></article>
+    </section>
+
+    <section class="block" id="titel">
+      <div class="block-head">
+        <p class="eyebrow-dark">Titel</p>
+        <h2 class="block-title">Trophäen und Torschützenkönige</h2>
+      </div>
+      <div class="grid-2">
+        <article class="card" id="titel-liste"></article>
+        <article class="card" id="kanonen"></article>
+      </div>
+    </section>
   </main>
 
   <footer class="wrap foot">
-    <p>Fan-Projekt ohne Verbindung zum SV Werder Bremen. Daten nach bestem Wissen aus öffentlichen Quellen zusammengestellt. Fehler gefunden? Korrekturen gerne per Pull Request in <code>assets/seasons.js</code>. Den Verlauf der laufenden Saison nach jedem Spieltag in <code>assets/verlauf.js</code> ergänzen.</p>
+    <p>Fan-Projekt ohne Verbindung zum SV Werder Bremen. Daten nach bestem Wissen aus öffentlichen Quellen zusammengestellt, die Quelle steht jeweils an der Liste. Fehler gefunden? Korrekturen gerne per Pull Request in <code>assets/seasons.js</code>. Den Verlauf der laufenden Saison nach jedem Spieltag in <code>assets/verlauf.js</code> ergänzen.</p>
   </footer>
 
   <script src="assets/seasons.js"></script>
   <script src="assets/verlauf.js"></script>
+  <script src="assets/rekorde.js"></script>
   <script src="assets/app.js"></script>
+  <script src="assets/rekorde-app.js"></script>
 </body>
 </html>

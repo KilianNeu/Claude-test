@@ -7,12 +7,16 @@ Inoffizielle Fan-Statistikseite: die letzten 20 Ligaspielzeiten von Werder Breme
 - **Klick** markiert eine Saison (A und B) für den direkten Vergleich
 - **Saisonverlauf**: laufende Saison Spieltag für Spieltag gegen die letzten 20 Jahre (Punkte, Platz, Tordifferenz), mit Schnitt, Spannweite und Hochrechnung
 - Bilanz (Siege/Unentschieden/Niederlagen) und sortierbare Tabelle
+- **Spieler**: Rekordtorschützen, Rekordspieler, Vorlagengeber, Karten
+- **Transfers**: teuerste Ein- und Verkäufe, Rückkehrer
+- **Titel**: Meisterschaften, Pokalsiege, Torschützenkönige
+- Navigationsleiste oben zu allen Bereichen
 
 Reines HTML/CSS/JS ohne Build-Schritt. Lokal einfach `index.html` im Browser öffnen.
 
 ## Daten
 
-Alle Saisondaten liegen in [`assets/seasons.js`](assets/seasons.js). Punkte, Tordifferenz und Schnitte werden daraus berechnet.
+Alle Saisondaten liegen in [`assets/seasons.js`](assets/seasons.js), die Spieler-, Transfer- und Titellisten mit ihren Quellen in [`assets/rekorde.js`](assets/rekorde.js). Punkte, Tordifferenz und Schnitte werden daraus berechnet.
 
 ## GitHub Pages
 
