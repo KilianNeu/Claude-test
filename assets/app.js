@@ -479,7 +479,21 @@
     rank: { label: "Tabellenplatz", get: (v, i) => (v.league === 2 ? 18 : 0) + v.rank[i], fmt: (x) => (x > 18 ? x - 18 + ". (2. Liga)" : x + "."), lower: true },
     gd:   { label: "Tordifferenz", get: (v, i) => v.gf[i] - v.ga[i], fmt: (x) => signed(x) },
   };
-  Object.assign(state, { pmetric: "pts", pmd: null, bl2: false });
+  Object.assign(state, { pmetric: "pts", pmd: null, pmy: null, bl2: false, pfocus: null });
+  let nearK = null; // Saisonlinie unter dem Mauszeiger
+  let pctx = null;  // Skala und Kandidaten der letzten Zeichnung
+
+  function findNear(md, py) {
+    if (!pctx || md === null || py === null) return null;
+    const i = md - 1;
+    const cands = pctx.cands.filter((k) => k !== CUR || md <= curMd);
+    let best = 16, hit = null;
+    cands.forEach((k) => {
+      const d = Math.abs(pctx.y(pctx.m.get(V[k], i)) - py);
+      if (d < best || (d === best && k === CUR)) { best = d; hit = k; }
+    });
+    return hit;
+  }
 
   function pool() {
     return PAST.filter((k) => state.bl2 || V[k].league === 1);
@@ -600,6 +614,19 @@
     curVals.forEach((v, i) => el("circle", { class: "p-cur-dot", cx: x(i + 1), cy: y(v), r: i === curMd - 1 ? 6 : 3.5 }, g));
     el("text", { class: "p-end cur", x: x(curMd) + 10, y: y(curVals[curMd - 1]) + 4 }, g).textContent = CUR;
 
+    // Linie unter dem Mauszeiger finden (nächste Saison am aktuellen Spieltag)
+    pctx = { y, m, cands: keys.concat(hiSeasons.map((h) => h[0]).filter((k) => V[k] && !keys.includes(k)), [CUR]) };
+    nearK = findNear(state.pmd, state.pmy);
+    const focusK = state.pfocus && V[state.pfocus] ? state.pfocus : null;
+    [focusK, nearK].forEach((k, j) => {
+      if (!k || k === CUR || hiSeasons.some((h) => h[0] === k)) return;
+      if (j === 1 && k === focusK) return;
+      const vals = series(k);
+      el("path", { class: "p-hi n", d: line(vals) }, g);
+      ends.push({ y: y(vals[33]), text: k.slice(2, 4) + "/" + k.slice(5, 7), cls: "n" });
+    });
+    psvg.classList.toggle("has-near", nearK !== null);
+
     // Endlabels rechts, gegen Überlappung leicht verschoben
     ends.sort((a, b) => a.y - b.y);
     for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
@@ -610,6 +637,10 @@
       const md = state.pmd, i = md - 1;
       el("line", { class: "p-cross", x1: x(md), x2: x(md), y1: 0, y2: ih }, g);
       const rows = [];
+      if (nearK) {
+        const v = m.get(V[nearK], i);
+        el("circle", { class: "p-mark", cx: x(md), cy: y(v), r: 6, fill: "var(--ink)" }, g);
+      }
       if (md <= curMd) rows.push([CUR, m.fmt(curVals[i]), "var(--surface)"]);
       rows.push(["Ø " + keys.length + " Saisons", state.pmetric === "rank" ? fmt(avg[i], 1) + "." : state.pmetric === "gd" ? signed(avg[i], 1) : fmt(avg[i], 1), "var(--draw)"]);
       hiSeasons.forEach(([k, cls]) => {
@@ -622,7 +653,14 @@
       const bestFn = m.lower ? Math.min : Math.max, worstFn = m.lower ? Math.max : Math.min;
       const bestK = keys.find((k) => m.get(V[k], i) === bestFn(...keys.map((kk) => m.get(V[kk], i))));
       const worstK = keys.find((k) => m.get(V[k], i) === worstFn(...keys.map((kk) => m.get(V[kk], i))));
-      ptip.innerHTML = `<b>${md}. Spieltag</b>` +
+      let nearHtml = "";
+      if (nearK) {
+        const fin = nearK === CUR ? null : data.find((d) => d.season === nearK);
+        nearHtml = `<div class="t-near"><b>${nearK}</b>${m.label} nach ${md} Sp.: ${m.fmt(m.get(V[nearK], i))}<br>` +
+          (fin ? `Endstand: ${posText(fin)} Platz · ${fin.pts} Pkt.` : `laufende Saison`) +
+          `<br><span class="t-muted">Klicken für Details${fin ? " und Markierung" : ""}</span></div>`;
+      }
+      ptip.innerHTML = nearHtml + `<b>${md}. Spieltag</b>` +
         rows.map((r) => `<div class="t-row"><span><i class="t-dot" style="background:${r[2]}"></i>${r[0]}</span><span>${r[1]}</span></div>`).join("") +
         `<div class="t-muted">Beste: ${bestK} (${m.fmt(m.get(V[bestK], i))})<br>Schlechteste: ${worstK} (${m.fmt(m.get(V[worstK], i))})</div>`;
       ptip.classList.add("show");
@@ -640,11 +678,26 @@
     const onMove = (ev) => {
       const r = psvg.getBoundingClientRect();
       const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left - M.left;
+      const py = (ev.touches ? ev.touches[0].clientY : ev.clientY) - r.top - M.top;
       const md = Math.max(1, Math.min(34, Math.round((px / iw) * 33) + 1));
-      if (md !== state.pmd) { state.pmd = md; renderProgress(); }
+      const prev = nearK, prevMd = state.pmd;
+      state.pmd = md;
+      state.pmy = py;
+      // nur neu zeichnen, wenn sich etwas ändert: sonst bleibt das Klickziel stabil
+      if (md === prevMd && findNear(md, py) === prev) return;
+      renderProgress();
+      if (nearK !== prev) renderPinfo();
     };
     hit.addEventListener("mousemove", onMove);
     hit.addEventListener("touchstart", onMove, { passive: true });
+    hit.addEventListener("click", () => {
+      if (!nearK) return;
+      state.pfocus = nearK;
+      if (nearK === CUR) { renderProgress(); renderPinfo(); return; }
+      const idx = seasonIdx(nearK);
+      if (selTag(idx) === null) toggleSelect(idx);
+      else renderAll();
+    });
 
     const leg = [
       `<span><i class="sw sw-line"></i>${CUR} (bis ${curMd}. Spieltag)</span>`,
@@ -656,10 +709,45 @@
     if (state.sel[1] !== null) leg.push(`<span><i class="sw sw-b"></i>B: ${data[state.sel[1]].season}</span>`);
     document.getElementById("progress-legend").innerHTML = leg.join("");
     document.getElementById("progress-sub").textContent =
-      `Stand nach jedem Spieltag. ${CUR} gegen ${keys.length} Spielzeiten seit 2006/07. Markierte Saisons (A/B) erscheinen farbig.`;
+      `Stand nach jedem Spieltag. ${CUR} gegen ${keys.length} Spielzeiten seit 2006/07. Klick auf eine Linie zeigt die Saison und markiert sie für den Vergleich.`;
   }
 
-  psvg.addEventListener("mouseleave", () => { state.pmd = null; renderProgress(); });
+  // Steckbrief der angeklickten (oder gerade berührten) Saison unter dem Verlauf
+  function renderPinfo() {
+    const box = document.getElementById("pinfo");
+    const k = nearK || state.pfocus || CUR;
+    const v = V[k];
+    if (!v) { box.innerHTML = ""; return; }
+    const n = v.pts.length;
+    const fin = k === CUR ? null : data.find((d) => d.season === k);
+    const ranks = v.rank;
+    const bestR = Math.min(...ranks), worstR = Math.max(...ranks);
+    const bestMd = ranks.indexOf(bestR) + 1, worstMd = ranks.indexOf(worstR) + 1;
+    const half = Math.min(n, 17);
+    const hin = v.pts[half - 1];
+    const rueck = n > 17 ? v.pts[n - 1] - v.pts[16] : null;
+    const tag = fin ? selTag(fin.i) : null;
+    const rankTxt = (r) => r + "." + (v.league === 2 ? " (2. Liga)" : "");
+    box.innerHTML = `
+      <div class="pinfo-head">
+        <div>
+          <p class="sub" style="margin:0">${nearK ? "Linie unter dem Mauszeiger" : state.pfocus ? "Angeklickte Saison" : "Laufende Saison"}</p>
+          <h3>${k}${tag ? ` <span class="chip ${tag}"><span class="tag">${tag.toUpperCase()}</span></span>` : ""}</h3>
+          <p class="coach">${v.league === 2 ? "2. Bundesliga" : "Bundesliga"}${fin ? " · Trainer: " + fin.coach : " · nach " + n + " Spieltagen"}</p>
+        </div>
+      </div>
+      <div class="stats pinfo-stats">
+        <div class="stat"><div class="label">${fin ? "Endplatz" : "Aktueller Platz"}</div><div class="value">${rankTxt(ranks[n - 1])}</div></div>
+        <div class="stat"><div class="label">Punkte</div><div class="value">${v.pts[n - 1]}</div></div>
+        <div class="stat"><div class="label">Tore</div><div class="value">${v.gf[n - 1]}<small>:${v.ga[n - 1]}</small></div></div>
+        <div class="stat"><div class="label">Bester Platz</div><div class="value">${rankTxt(bestR)}</div><div class="ctx">am ${bestMd}. Spieltag</div></div>
+        <div class="stat"><div class="label">Schlechtester Platz</div><div class="value">${rankTxt(worstR)}</div><div class="ctx">am ${worstMd}. Spieltag</div></div>
+        <div class="stat"><div class="label">Hinrunde${rueck !== null ? " / Rückrunde" : ""}</div><div class="value">${hin}${rueck !== null ? `<small> / ${rueck}</small>` : ""}</div><div class="ctx">Punkte${n < 17 ? " bisher" : ""}</div></div>
+      </div>
+      ${fin && fin.notes.length ? `<ul class="notes">${fin.notes.map((x) => `<li>${x}</li>`).join("")}</ul>` : ""}`;
+  }
+
+  psvg.addEventListener("mouseleave", () => { state.pmd = null; state.pmy = null; renderProgress(); renderPinfo(); });
   document.getElementById("bl2-toggle").addEventListener("change", (e) => { state.bl2 = e.target.checked; renderProgress(); });
 
   function renderAll() {
@@ -667,6 +755,7 @@
     renderDetail();
     renderCompare();
     renderProgress();
+    renderPinfo();
     syncHoverClasses();
   }
 

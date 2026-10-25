@@ -289,3 +289,15 @@ td .badge { font-size: 11px; padding: 2px 6px; border-radius: 99px; background: 
 .sw-range { background: var(--muted); opacity: .25; }
 .tooltip .t-row { display: flex; justify-content: space-between; gap: 14px; }
 .tooltip .t-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.viz .p-hi.n { stroke: var(--ink-2); stroke-width: 2.5; }
+.viz .p-end.n { fill: var(--ink-2); }
+#progress.has-near .p-hit { cursor: pointer; }
+.tooltip .t-near { padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid rgba(127,127,127,.4); }
+.pinfo { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.pinfo h3 { margin: 0; font-size: 30px; line-height: 1.05; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.pinfo .chip .tag { font-size: 12px; }
+.pinfo .coach { color: var(--muted); margin: 4px 0 12px; font-size: 13px; }
+.pinfo-stats { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.pinfo-stats .ctx { font-size: 12px; color: var(--ink-2); }
+@media (max-width: 860px) { .pinfo-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .pinfo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
