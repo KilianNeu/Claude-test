@@ -124,12 +124,12 @@
         </div>
       </div>
       <div class="ch-games" aria-label="Ergebnisse">
-        ${done.map((f, i) => `<div class="game ${res(f)}" title="${RES_LONG[res(f)]}">
+        ${done.map((f, i) => `<button type="button" class="game ${res(f)}" data-fid="${f.id}" title="${RES_LONG[res(f)]}, Spielbericht öffnen">
           <span class="md">${i + 1}. Sp.</span>
           <span class="opp">${isHome(f) ? "vs." : "@"} ${esc(isHome(f) ? f.away : f.home)}</span>
           <b>${isHome(f) ? f.hs : f.as}:${isHome(f) ? f.as : f.hs}</b>
           <span class="res">${RES[res(f)]}</span>
-        </div>`).join("")}
+        </button>`).join("")}
         ${next.map((f) => `<div class="game next"><span class="md">${dateDe(f.date)}</span><span class="opp">${isHome(f) ? "vs." : "@"} ${esc(isHome(f) ? f.away : f.home)}</span><b>–:–</b><span class="res">offen</span></div>`).join("")}
       </div>`;
   }
@@ -258,8 +258,10 @@
     renderTable();
     renderCard();
     renderScatter();
-    if (scroll && state.focus) document.getElementById("pcard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    setHash(state.focus);
+    if (scroll && state.focus) document.getElementById("pcard").scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  (window.WB = window.WB || {}).focusPlayer = (id, scroll) => { state.focus = null; focusPlayer(id, scroll); };
 
   function renderCard() {
     const box = document.getElementById("pcard");
@@ -298,9 +300,13 @@
         <div class="pc-num">${p.num ?? ""}</div>
         <div>
           <h3>${esc(p.name)}</h3>
-          <p class="sub">${POS_NAME[p.pos] || ""}${p.age ? " · " + p.age + " Jahre" : ""}${p.nat ? " · " + esc(p.nat) : ""}${p.injured ? " · derzeit verletzt" : ""}${p.motm ? ` · ${p.motm}× Spieler des Spiels` : ""}</p>
+          <p class="sub">${POS_NAME[p.pos] || ""}${p.age ? " · " + p.age + " Jahre" : ""}${p.height ? " · " + p.height + " cm" : ""}${p.foot ? " · Fuß " + p.foot : ""}${p.nat ? " · " + esc(p.nat) : ""}${p.motm ? ` · ${p.motm}× Spieler des Spiels` : ""}</p>
+          <p class="sub">${p.contract ? (p.onLoan ? "Leihe bis " : "Vertrag bis ") + p.contract.slice(8, 10) + "." + p.contract.slice(5, 7) + "." + p.contract.slice(0, 4) : ""}${p.injured ? ` · <span class="inj">verletzt, Rückkehr ${esc(p.injuryReturn || "offen")}</span>` : ""}</p>
         </div>
-        <button type="button" class="btn pc-close" id="pc-close">Schließen</button>
+        <div class="pc-actions">
+          <button type="button" class="btn" id="pc-share">Link kopieren</button>
+          <button type="button" class="btn pc-close" id="pc-close">Schließen</button>
+        </div>
       </div>
       <div class="pc-line">${line.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>
       <div class="pc-grid">
@@ -312,8 +318,134 @@
           <h4>Im Vergleich zur Liga</h4>
           ${bars ? `<div class="pbars">${bars}</div><p class="hint">Balken = Perzentil laut FotMob: 80 heißt besser als 80 % der Bundesliga-Spieler.</p>` : `<p class="hint">Zu wenige Minuten für einen Ligavergleich.</p>`}
         </div>
-      </div>`;
-    document.getElementById("pc-close").addEventListener("click", () => { state.focus = null; renderTable(); renderCard(); renderScatter(); });
+      </div>
+      <div class="pc-grid three">
+        <div>
+          <h4>Schusskarte <small>${p.shots.length} Schüsse, Größe = xG</small></h4>
+          ${p.shots.length ? `<svg class="pitch-svg half" id="pc-shots" viewBox="50.5 -2 57.5 72" role="img" aria-label="Schüsse von ${esc(p.name)}"></svg>` : `<p class="hint">Keine Schüsse in dieser Saison.</p>`}
+        </div>
+        <div>
+          <h4>Heatmap <small>wo er am Ball war, Angriff nach rechts</small></h4>
+          ${p.heat.length ? `<svg class="pitch-svg" id="pc-heat" viewBox="-2 -2 109 72" role="img" aria-label="Heatmap von ${esc(p.name)}"></svg>` : `<p class="hint">Keine Heatmap verfügbar.</p>`}
+        </div>
+        <div>
+          <h4>Marktwert <small>Schätzung von SciSports</small></h4>
+          ${p.mv.length > 1 ? `<svg class="viz mv" id="pc-mv" role="img" aria-label="Marktwert-Verlauf"></svg>` : `<p class="hint">Kein Marktwert-Verlauf.</p>`}
+        </div>
+      </div>
+      ${bars ? `<div class="pc-radar">
+        <div class="pc-radar-head"><h4>Spieler gegen Spieler</h4>
+          <label class="check">Vergleichen mit <select id="pc-cmp">${played.filter((x) => x.id !== p.id && x.mins >= 90 && Object.keys(x.s).length).sort((a, b) => (a.pos === p.pos ? -1 : 0) - (b.pos === p.pos ? -1 : 0) || b.mins - a.mins)
+            .map((x) => `<option value="${x.id}" ${x.id === state.cmp ? "selected" : ""}>${esc(x.name)} (${x.pos})</option>`).join("")}</select></label></div>
+        <svg class="viz radar" id="pc-radar" role="img" aria-label="Radar-Vergleich"></svg>
+        <div class="legend"><span><i class="sw sw-a"></i>${esc(p.name)}</span><span><i class="sw sw-b"></i><span id="pc-cmp-name"></span></span><span>Perzentile im Ligavergleich, außen ist besser</span></div>
+      </div>` : ""}`;
+    document.getElementById("pc-close").addEventListener("click", () => { state.focus = null; setHash(null); renderTable(); renderCard(); renderScatter(); });
+    document.getElementById("pc-share").addEventListener("click", (e) => {
+      const btn = e.currentTarget;
+      const url = location.href.split("#")[0] + "#spieler-" + p.id;
+      const done = () => { btn.textContent = "Link kopiert"; setTimeout(() => (btn.textContent = "Link kopieren"), 1800); };
+      try {
+        navigator.clipboard.writeText(url).then(done, () => { btn.textContent = "#spieler-" + p.id; });
+      } catch (err) { btn.textContent = "#spieler-" + p.id; }
+    });
+    drawCardExtras(p);
+  }
+
+  function setHash(id) {
+    try { history.replaceState(null, "", id ? "#spieler-" + id : location.pathname + location.search); } catch (e) { /* Rahmen erlaubt das nicht */ }
+  }
+
+  function drawCardExtras(p) {
+    const WB = window.WB || {};
+    const shots = document.getElementById("pc-shots");
+    if (shots && WB.pitch) {
+      WB.pitch(shots);
+      WB.shotDots(shots, p.shots.map((s) => ({ ...s, name: p.name })), null, "me");
+    }
+    const heat = document.getElementById("pc-heat");
+    if (heat && WB.pitch) {
+      WB.pitch(heat);
+      // Ballaktionen in 5 × 4,86 m große Felder zählen
+      const cols = 21, rows = 14, cw = 105 / cols, ch = 68 / rows;
+      const grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+      p.heat.forEach(([x, y]) => { const c = Math.min(cols - 1, Math.max(0, Math.floor(x / cw))), r = Math.min(rows - 1, Math.max(0, Math.floor(y / ch))); grid[r][c]++; });
+      // leicht glätten, damit Flächen statt Kacheln entstehen
+      const sm = grid.map((row, r) => row.map((_, c) => {
+        let s = 0, n = 0;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const v = grid[r + dr]?.[c + dc]; if (v !== undefined) { const w = dr || dc ? 0.5 : 1; s += v * w; n += w; } }
+        return s / n;
+      }));
+      const max = Math.max(...sm.flat(), 1);
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      sm.forEach((row, r) => row.forEach((v, c) => {
+        if (v / max < 0.08) return;
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", c * cw); rect.setAttribute("y", r * ch); rect.setAttribute("width", cw); rect.setAttribute("height", ch);
+        rect.setAttribute("class", "heat-cell");
+        rect.setAttribute("style", `opacity:${(0.12 + 0.78 * (v / max)).toFixed(2)}`);
+        g.appendChild(rect);
+      }));
+      heat.insertBefore(g, heat.querySelector(".pitch").nextSibling);
+      heat.appendChild(heat.querySelector(".pitch").cloneNode(true)).querySelector(".pitch-bg").remove();
+    }
+    const mvSvg = document.getElementById("pc-mv");
+    if (mvSvg) drawMarketValue(mvSvg, p.mv);
+    const radar = document.getElementById("pc-radar");
+    if (radar) {
+      const sel = document.getElementById("pc-cmp");
+      if (!state.cmp || !players.some((x) => x.id === state.cmp) || state.cmp === p.id) state.cmp = +sel.value;
+      sel.value = state.cmp;
+      sel.addEventListener("change", () => { state.cmp = +sel.value; drawRadar(radar, p, players.find((x) => x.id === state.cmp)); });
+      drawRadar(radar, p, players.find((x) => x.id === state.cmp));
+    }
+  }
+
+  function drawMarketValue(svg, mv) {
+    const W = svg.clientWidth || 300, H = svg.clientHeight || 180;
+    const M = { t: 12, r: 10, b: 22, l: 42 };
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = "";
+    const pts = mv.map(([d, v]) => [new Date(d).getTime(), v / 1e6]);
+    const x0 = pts[0][0], x1 = pts[pts.length - 1][0], ymax = Math.max(...pts.map((q) => q[1])) * 1.1 || 1;
+    const x = (t) => M.l + ((t - x0) / (x1 - x0 || 1)) * (W - M.l - M.r), y = (v) => H - M.b - (v / ymax) * (H - M.t - M.b);
+    const NS = "http://www.w3.org/2000/svg";
+    const mk = (tag, a) => { const n = document.createElementNS(NS, tag); for (const k in a) n.setAttribute(k, a[k]); svg.appendChild(n); return n; };
+    [0, ymax / 2, ymax].forEach((v) => { mk("line", { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), class: "mv-grid" }); mk("text", { x: M.l - 6, y: y(v) + 4, "text-anchor": "end" }).textContent = fmt(v, v < 10 ? 1 : 0); });
+    const y0 = new Date(x0).getFullYear(), y1 = new Date(x1).getFullYear();
+    const step = Math.max(1, Math.ceil((y1 - y0) / 4));
+    for (let yr = y0 + 1; yr <= y1; yr += step) mk("text", { x: x(new Date(yr + "-01-01").getTime()), y: H - 6, "text-anchor": "middle" }).textContent = yr;
+    const d = pts.map((q, i) => (i ? "L" : "M") + x(q[0]).toFixed(1) + "," + y(q[1]).toFixed(1)).join("");
+    mk("path", { d: d + `L${x(x1)},${y(0)}L${x(x0)},${y(0)}Z`, class: "mv-area" });
+    mk("path", { d, class: "mv-line" });
+    const lastP = pts[pts.length - 1], peak = pts.reduce((a, b) => (b[1] > a[1] ? b : a));
+    mk("circle", { cx: x(lastP[0]), cy: y(lastP[1]), r: 4, class: "mv-dot" });
+    mk("text", { x: x(lastP[0]) - 6, y: y(lastP[1]) - 8, "text-anchor": "end", class: "mv-label" }).textContent = fmt(lastP[1], 1) + " Mio. €";
+    if (peak !== lastP) mk("text", { x: x(peak[0]), y: y(peak[1]) - 8, "text-anchor": "middle", class: "mv-label muted" }).textContent = "Hoch " + fmt(peak[1], 1);
+    mk("text", { x: M.l, y: M.t - 2, class: "mv-unit" }).textContent = "Mio. €";
+  }
+
+  function drawRadar(svg, a, b) {
+    const keys = (PROFILE[a.pos] || PROFILE.MF).filter((k) => a.s[k] && a.s[k].pct != null);
+    document.getElementById("pc-cmp-name").textContent = b ? b.name : "";
+    const W = svg.clientWidth || 360, H = svg.clientHeight || 320;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = "";
+    if (keys.length < 3) return;
+    const cx = W / 2, cy = H / 2 + 4, R = Math.min(W, H) / 2 - 46;
+    const NS = "http://www.w3.org/2000/svg";
+    const mk = (tag, at) => { const n = document.createElementNS(NS, tag); for (const k in at) n.setAttribute(k, at[k]); svg.appendChild(n); return n; };
+    const ang = (i) => -Math.PI / 2 + (i / keys.length) * Math.PI * 2;
+    [25, 50, 75, 100].forEach((v) => mk("polygon", { points: keys.map((_, i) => `${cx + Math.cos(ang(i)) * R * v / 100},${cy + Math.sin(ang(i)) * R * v / 100}`).join(" "), class: "rd-ring" }));
+    keys.forEach((k, i) => {
+      mk("line", { x1: cx, y1: cy, x2: cx + Math.cos(ang(i)) * R, y2: cy + Math.sin(ang(i)) * R, class: "rd-axis" });
+      const lx = cx + Math.cos(ang(i)) * (R + 16), ly = cy + Math.sin(ang(i)) * (R + 16);
+      const t = mk("text", { x: lx, y: ly + 4, "text-anchor": Math.abs(Math.cos(ang(i))) < 0.2 ? "middle" : Math.cos(ang(i)) > 0 ? "start" : "end", class: "rd-label" });
+      t.textContent = PNAME[k] || k;
+    });
+    const poly = (p, cls) => mk("polygon", { points: keys.map((k, i) => { const v = (p.s[k] && p.s[k].pct != null ? p.s[k].pct : 0) / 100; return `${cx + Math.cos(ang(i)) * R * v},${cy + Math.sin(ang(i)) * R * v}`; }).join(" "), class: "rd-poly " + cls });
+    if (b) poly(b, "b");
+    poly(a, "a");
   }
 
   // ---------- Streudiagramm ----------
@@ -432,6 +564,12 @@
   });
   renderScatter();
   renderBlTable();
+  document.querySelectorAll("#cur-hero [data-fid]").forEach((b) => b.addEventListener("click", () => window.WB && window.WB.openMatch && window.WB.openMatch(b.dataset.fid)));
+  // Direktlink auf einen Spieler, z. B. #spieler-276791
+  window.addEventListener("load", () => {
+    const m = /^#spieler-(\d+)$/.exec(location.hash);
+    if (m && players.some((p) => p.id === +m[1])) focusPlayer(+m[1], true);
+  });
   let raf;
   window.addEventListener("resize", () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(renderScatter); });
 })();

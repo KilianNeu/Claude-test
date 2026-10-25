@@ -28,9 +28,14 @@
       <a class="brand" href="#top"><span class="brand-raute" aria-hidden="true"></span>Werder Statistik</a>
       <div class="navlinks" id="navlinks">
         <a href="#aktuell">2026/27</a>
+        <a href="#spiele">Spiele</a>
+        <a href="#liga">Liga</a>
+        <a href="#verein">Verein</a>
+        <a href="#finanzen">Finanzen</a>
+        <a href="#fans">Fans</a>
         <a href="#saisons">Saisons</a>
-        <a href="#verlauf">Saisonverlauf</a>
-        <a href="#spieler">Spieler</a>
+        <a href="#verlauf">Verlauf</a>
+        <a href="#spieler">Rekorde</a>
         <a href="#transfers">Transfers</a>
         <a href="#titel">Titel</a>
       </div>
@@ -83,6 +88,69 @@
           <div class="table-scroll"><table id="bl-table" class="bl-table"></table></div>
         </article>
       </div>
+    </section>
+
+    <section class="block" id="spiele">
+      <div class="block-head">
+        <p class="eyebrow-dark">Spiele 2026/27</p>
+        <h2 class="block-title">Spielplan und Spielberichte</h2>
+        <p class="sub">Jedes Spiel mit Verlauf, Momentum, Schusskarte, Statistik je Halbzeit und Noten aller Werder-Spieler.</p>
+      </div>
+      <article class="card" id="spielplan"></article>
+      <article class="card report" id="bericht"></article>
+      <div class="grid-2">
+        <article class="card" id="pech"></article>
+        <article class="card" id="halbzeit"></article>
+      </div>
+    </section>
+
+    <section class="block" id="liga">
+      <div class="block-head">
+        <p class="eyebrow-dark">Liga</p>
+        <h2 class="block-title">Werder und die Bundesliga</h2>
+        <p class="sub">Wo Werder in den Teamwerten steht und wohin die Saison führen kann.</p>
+      </div>
+      <div class="grid-2">
+        <article class="card" id="ligavergleich"></article>
+        <article class="card" id="prognose"></article>
+      </div>
+    </section>
+
+    <section class="block" id="verein">
+      <div class="block-head">
+        <p class="eyebrow-dark">Verein</p>
+        <h2 class="block-title">Kader und Verein</h2>
+        <p class="sub">Altersstruktur, Herkunft, Verträge, Verletzte, Marktwerte und alle Wechsel des Jahres.</p>
+      </div>
+      <div class="grid-2">
+        <article class="card" id="struktur"></article>
+        <article class="card" id="vertraege"></article>
+      </div>
+      <div class="grid-2 wide-right">
+        <article class="card" id="kaderwert"></article>
+        <article class="card" id="transfers26"></article>
+      </div>
+    </section>
+
+    <section class="block" id="finanzen">
+      <div class="block-head">
+        <p class="eyebrow-dark">Finanzen</p>
+        <h2 class="block-title">Werders Finanzen</h2>
+        <p class="sub" id="fin-sub">Umsatz, Ergebnis, Schulden und Eigenkapital der SV Werder Bremen GmbH &amp; Co KG aA.</p>
+      </div>
+      <div id="fin-root"></div>
+    </section>
+
+    <section class="block" id="fans">
+      <div class="block-head">
+        <p class="eyebrow-dark">Fans</p>
+        <h2 class="block-title">Derby, Vorschau und Momente</h2>
+      </div>
+      <div class="grid-2">
+        <article class="card" id="derby"></article>
+        <article class="card" id="vorschau"></article>
+      </div>
+      <article class="card" id="momente"></article>
     </section>
 
     <div class="anchor" id="saisons"></div>
@@ -201,8 +269,12 @@
   <script src="assets/verlauf.js"></script>
   <script src="assets/rekorde.js"></script>
   <script src="assets/kader.js"></script>
+  <script src="assets/spiele.js"></script>
+  <script src="assets/finanzen.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/rekorde-app.js"></script>
   <script src="assets/aktuell.js"></script>
+  <script src="assets/spiele-app.js"></script>
+  <script src="assets/finanzen-app.js"></script>
 </body>
 </html>

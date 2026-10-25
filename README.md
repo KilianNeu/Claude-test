@@ -8,6 +8,11 @@ Inoffizielle Fan-Statistikseite: die letzten 20 Ligaspielzeiten von Werder Breme
 - **Saisonverlauf**: laufende Saison Spieltag für Spieltag gegen die letzten 20 Jahre (Punkte, Platz, Tordifferenz), mit Schnitt, Spannweite und Hochrechnung
 - Bilanz (Siege/Unentschieden/Niederlagen) und sortierbare Tabelle
 - **Saison 2026/27**: Ergebnisse, Bestenlisten, kompletter Kader mit Minuten, Ein-/Auswechslungen, Noten, xG, xA, Pässen, Zweikämpfen, Defensive und Torhüterwerten (gesamt oder pro 90 Minuten), Spieler-Steckbriefe und Bundesliga-Tabelle
+- **Spiele**: Spielplan mit Spielberichten (Verlauf, Momentum, Schusskarte, Statistik je Halbzeit, Aufstellung mit Noten), Pech-Barometer nach xG, Halbzeit-Analyse
+- **Liga**: Werder in 27 Teamwerten im Ligavergleich, Monte-Carlo-Prognose für den Endplatz
+- **Verein**: Altersstruktur, Herkunft, Verträge, Verletzte, Marktwerte, alle Wechsel 2026
+- **Finanzen**: Umsatz, Ergebnis, Eigenkapital, Anleihe, Investoren 2018/19 bis 2025/26 mit Quellen
+- **Fans**: Nordderby-Countdown, Vorschau aufs nächste Spiel, Momente der Saison
 - **Spieler**: Rekordtorschützen, Rekordspieler, Vorlagengeber, Karten
 - **Transfers**: teuerste Ein- und Verkäufe, Rückkehrer
 - **Titel**: Meisterschaften, Pokalsiege, Torschützenkönige
@@ -33,4 +38,4 @@ Die Werte der laufenden Saison kommen von FotMob. Nach einem Spieltag:
 python3 tools/update_fotmob.py
 ```
 
-Das Skript schreibt `assets/kader.js` neu und verlängert die laufende Saison in `assets/verlauf.js`. Die Daten gehören FotMob, die Seite nennt sie als Quelle.
+Das Skript schreibt `assets/kader.js` und `assets/spiele.js` neu und verlängert die laufende Saison in `assets/verlauf.js`. Mit `python3 tools/build_single.py dist/werder.html` entsteht die ganze Seite als eine Datei. Die Daten gehören FotMob, die Seite nennt sie als Quelle.
