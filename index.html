@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Werder Saisonvergleich</title>
+  <meta name="description" content="20 Jahre Werder Bremen: alle Ligaspielzeiten von 2006/07 bis 2025/26 interaktiv im Vergleich.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 1 31 16 16 31 1 16Z' fill='%231D9053'/%3E%3Cpath d='M16 7 25 16 16 25 7 16Z' fill='white'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <div class="raute" aria-hidden="true"><span>W</span></div>
+      <div>
+        <p class="eyebrow">Inoffizielle Fan-Statistik</p>
+        <h1>Werder Bremen <span>Saison für Saison</span></h1>
+        <p class="lede">20 Spielzeiten von 2006/07 bis 2025/26. Fahr mit der Maus über eine Saison, um ihre Daten zu sehen. Klick sie an, um sie zu markieren und zwei Saisons direkt zu vergleichen.</p>
+      </div>
+    </div>
+    <div class="stripes" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap">
+    <section class="kpis" id="kpis" aria-label="Kennzahlen"></section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2 id="chart-title">Tabellenplatz</h2>
+          <p class="sub" id="chart-sub">Endplatzierung je Saison. Oben ist besser.</p>
+        </div>
+        <div class="seg" role="tablist" aria-label="Kennzahl wählen" id="metric-tabs"></div>
+      </div>
+      <div class="chart-wrap" id="chart-wrap">
+        <svg id="chart" role="img" aria-labelledby="chart-title chart-sub"></svg>
+        <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="grid-2">
+      <article class="card detail" id="detail" aria-live="polite"></article>
+      <article class="card compare" id="compare" aria-live="polite"></article>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Bilanz je Saison</h2>
+          <p class="sub">Siege, Unentschieden und Niederlagen aus 34 Spielen</p>
+        </div>
+        <div class="legend inline">
+          <span><i class="sw sw-w"></i>Siege</span>
+          <span><i class="sw sw-d"></i>Unentschieden</span>
+          <span><i class="sw sw-l"></i>Niederlagen</span>
+        </div>
+      </div>
+      <div class="wdl" id="wdl"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Alle Saisons in der Tabelle</h2>
+          <p class="sub">Klick auf eine Spalte sortiert, Klick auf eine Zeile markiert die Saison</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table id="table"></table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Fan-Projekt ohne Verbindung zum SV Werder Bremen. Daten nach bestem Wissen aus öffentlichen Quellen zusammengestellt. Fehler gefunden? Korrekturen gerne per Pull Request in <code>assets/seasons.js</code>.</p>
+  </footer>
+
+  <script src="assets/seasons.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
