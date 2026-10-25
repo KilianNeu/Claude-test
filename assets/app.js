@@ -80,6 +80,7 @@
     state.hover = i;
     renderChart();
     renderDetail();
+    renderProgress();
     syncHoverClasses();
   }
 
@@ -465,10 +466,207 @@
     });
   }
 
+  /* ---------------- Saisonverlauf ---------------- */
+  const V = window.VERLAUF || {};
+  const vKeys = Object.keys(V);
+  const CUR = vKeys[vKeys.length - 1];
+  const cur = V[CUR];
+  const curMd = cur ? cur.pts.length : 0;
+  const PAST = vKeys.filter((k) => k !== CUR);
+
+  const PMETRICS = {
+    pts:  { label: "Punkte", get: (v, i) => v.pts[i], fmt: (x) => fmt(x) },
+    rank: { label: "Tabellenplatz", get: (v, i) => (v.league === 2 ? 18 : 0) + v.rank[i], fmt: (x) => (x > 18 ? x - 18 + ". (2. Liga)" : x + "."), lower: true },
+    gd:   { label: "Tordifferenz", get: (v, i) => v.gf[i] - v.ga[i], fmt: (x) => signed(x) },
+  };
+  Object.assign(state, { pmetric: "pts", pmd: null, bl2: false });
+
+  function pool() {
+    return PAST.filter((k) => state.bl2 || V[k].league === 1);
+  }
+  function seasonIdx(key) {
+    const s = data.find((d) => d.season === key);
+    return s ? s.i : null;
+  }
+
+  function renderProgressTabs() {
+    const box = document.getElementById("progress-tabs");
+    box.innerHTML = "";
+    for (const key in PMETRICS) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.textContent = PMETRICS[key].label;
+      b.setAttribute("aria-selected", key === state.pmetric);
+      b.addEventListener("click", () => {
+        state.pmetric = key;
+        renderProgressTabs();
+        renderProgress();
+      });
+      box.appendChild(b);
+    }
+  }
+
+  function renderLive() {
+    const box = document.getElementById("live");
+    if (!cur) { box.innerHTML = ""; return; }
+    const i = curMd - 1;
+    // Vergleich nur mit Bundesliga-Spielzeiten
+    const bl = PAST.filter((k) => V[k].league === 1);
+    const avg = bl.reduce((s, k) => s + V[k].pts[i], 0) / bl.length;
+    const better = bl.filter((k) => V[k].pts[i] > cur.pts[i]).length;
+    const diff = cur.pts[i] - avg;
+    const proj = Math.round((cur.pts[i] / curMd) * 34);
+    const projRank = 1 + data.filter((s) => s.league === "BL" && s.pts > proj).length;
+    box.innerHTML = `
+      <div class="stat"><div class="label">Laufende Saison ${CUR}</div><div class="value">${curMd}. Spieltag</div><div class="ctx">${34 - curMd} Spiele übrig</div></div>
+      <div class="stat"><div class="label">Punkte</div><div class="value">${cur.pts[i]}</div><div class="ctx">Platz ${cur.rank[i]} · ${cur.gf[i]}:${cur.ga[i]} Tore</div></div>
+      <div class="stat"><div class="label">Gegen den Schnitt</div><div class="value ${diff >= 0 ? "up" : "down"}">${signed(diff, 1)}</div><div class="ctx">Ø ${fmt(avg, 1)} Punkte nach ${curMd} Spielen</div></div>
+      <div class="stat"><div class="label">Start im Vergleich</div><div class="value">${better + 1}.</div><div class="ctx">von ${bl.length + 1} Spielzeiten seit 2006</div></div>
+      <div class="stat"><div class="label">Hochrechnung</div><div class="value">${proj} <small>Pkt.</small></div><div class="ctx">wäre ${projRank}. bester Wert seit 2006</div></div>`;
+  }
+
+  const psvg = document.getElementById("progress");
+  const ptip = document.getElementById("ptooltip");
+
+  function renderProgress() {
+    if (!cur) return;
+    const m = PMETRICS[state.pmetric];
+    const W = psvg.clientWidth || 800;
+    const H = psvg.clientHeight || 420;
+    const M = { top: 14, right: 52, bottom: 30, left: 36 };
+    const iw = W - M.left - M.right;
+    const ih = H - M.top - M.bottom;
+    psvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    psvg.innerHTML = "";
+    const g = el("g", { transform: `translate(${M.left},${M.top})` }, psvg);
+
+    const keys = pool();
+    const x = (md) => ((md - 1) / 33) * iw;
+    const all = keys.flatMap((k) => V[k].pts.map((_, i) => m.get(V[k], i))).concat(cur.pts.map((_, i) => m.get(cur, i)));
+    let y, yTicks;
+    if (state.pmetric === "rank") {
+      const maxR = Math.max(18, ...all);
+      y = (v) => ((v - 1) / (maxR - 1)) * ih;
+      yTicks = [1, 4, 8, 12, 16, 18].filter((t) => t <= maxR);
+    } else {
+      const lo = Math.min(0, ...all), hi = Math.max(...all);
+      const top = Math.ceil((hi * 1.03) / 10) * 10;
+      const bot = Math.floor(lo / 10) * 10;
+      y = (v) => ih - ((v - bot) / (top - bot)) * ih;
+      yTicks = ticks(bot, top, 7);
+    }
+
+    const grid = el("g", { class: "grid" }, g);
+    for (const t of yTicks) {
+      el("line", { x1: 0, x2: iw, y1: y(t), y2: y(t) }, grid);
+      el("text", { x: -8, y: y(t) + 4, "text-anchor": "end" }, g).textContent = state.pmetric === "rank" ? t + "." : fmt(t);
+    }
+    if (state.pmetric === "gd") el("line", { class: "baseline", x1: 0, x2: iw, y1: y(0), y2: y(0) }, g);
+    const xt = W < 560 ? [1, 10, 20, 34] : [1, 5, 10, 15, 20, 25, 30, 34];
+    for (const t of xt) el("text", { x: x(t), y: ih + 20, "text-anchor": "middle" }, g).textContent = t;
+    el("text", { x: iw, y: ih + 20, dx: 8, "text-anchor": "start" }, g).textContent = "Sp.";
+
+    const line = (vals) => vals.map((v, i) => (i ? "L" : "M") + x(i + 1).toFixed(1) + "," + y(v).toFixed(1)).join("");
+    const series = (k) => V[k].pts.map((_, i) => m.get(V[k], i));
+
+    // Spannweite beste bis schlechteste Saison
+    const lo = [], hi = [], avg = [];
+    for (let i = 0; i < 34; i++) {
+      const vals = keys.map((k) => m.get(V[k], i));
+      lo.push(Math.min(...vals)); hi.push(Math.max(...vals));
+      avg.push(vals.reduce((a, b) => a + b, 0) / vals.length);
+    }
+    el("path", { class: "p-band", d: line(hi) + lo.map((v, i) => "L" + x(34 - i).toFixed(1) + "," + y(lo[33 - i]).toFixed(1)).join("") + "Z" }, g);
+    keys.forEach((k) => el("path", { class: "p-line", d: line(series(k)) }, g));
+    el("path", { class: "p-avg", d: line(avg) }, g);
+
+    // hervorgehobene Saisons: Hover aus anderen Diagrammen, Markierung A/B
+    const hiSeasons = [];
+    if (state.hover !== null && !selTag(state.hover)) hiSeasons.push([data[state.hover].season, "h"]);
+    if (state.sel[0] !== null) hiSeasons.push([data[state.sel[0]].season, "a"]);
+    if (state.sel[1] !== null) hiSeasons.push([data[state.sel[1]].season, "b"]);
+    const ends = [];
+    hiSeasons.forEach(([k, cls]) => {
+      if (!V[k]) return;
+      const vals = series(k);
+      el("path", { class: "p-hi " + cls, d: line(vals) }, g);
+      if (cls !== "h") ends.push({ y: y(vals[33]), text: k.slice(2, 4) + "/" + k.slice(5, 7), cls });
+    });
+
+    // laufende Saison
+    const curVals = cur.pts.map((_, i) => m.get(cur, i));
+    el("path", { class: "p-cur", d: line(curVals) }, g);
+    curVals.forEach((v, i) => el("circle", { class: "p-cur-dot", cx: x(i + 1), cy: y(v), r: i === curMd - 1 ? 6 : 3.5 }, g));
+    el("text", { class: "p-end cur", x: x(curMd) + 10, y: y(curVals[curMd - 1]) + 4 }, g).textContent = CUR;
+
+    // Endlabels rechts, gegen Überlappung leicht verschoben
+    ends.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+    ends.forEach((e) => (el("text", { class: "p-end " + e.cls, x: iw + 6, y: e.y + 4 }, g).textContent = e.text));
+
+    // Hover: Fadenkreuz je Spieltag
+    if (state.pmd !== null) {
+      const md = state.pmd, i = md - 1;
+      el("line", { class: "p-cross", x1: x(md), x2: x(md), y1: 0, y2: ih }, g);
+      const rows = [];
+      if (md <= curMd) rows.push([CUR, m.fmt(curVals[i]), "var(--surface)"]);
+      rows.push(["Ø " + keys.length + " Saisons", state.pmetric === "rank" ? fmt(avg[i], 1) + "." : state.pmetric === "gd" ? signed(avg[i], 1) : fmt(avg[i], 1), "var(--draw)"]);
+      hiSeasons.forEach(([k, cls]) => {
+        if (!V[k]) return;
+        const v = m.get(V[k], i);
+        const color = cls === "a" ? "var(--sel-a)" : cls === "b" ? "var(--sel-b)" : "var(--werder)";
+        rows.push([k, m.fmt(v), color]);
+        el("circle", { class: "p-mark", cx: x(md), cy: y(v), r: 5, fill: color }, g);
+      });
+      const bestFn = m.lower ? Math.min : Math.max, worstFn = m.lower ? Math.max : Math.min;
+      const bestK = keys.find((k) => m.get(V[k], i) === bestFn(...keys.map((kk) => m.get(V[kk], i))));
+      const worstK = keys.find((k) => m.get(V[k], i) === worstFn(...keys.map((kk) => m.get(V[kk], i))));
+      ptip.innerHTML = `<b>${md}. Spieltag</b>` +
+        rows.map((r) => `<div class="t-row"><span><i class="t-dot" style="background:${r[2]}"></i>${r[0]}</span><span>${r[1]}</span></div>`).join("") +
+        `<div class="t-muted">Beste: ${bestK} (${m.fmt(m.get(V[bestK], i))})<br>Schlechteste: ${worstK} (${m.fmt(m.get(V[worstK], i))})</div>`;
+      ptip.classList.add("show");
+      // neben das Fadenkreuz, auf die freiere Seite
+      const px = M.left + x(md), w = ptip.offsetWidth;
+      const right = px + 14 + w <= W || px - 14 - w < 0;
+      ptip.style.left = (right ? Math.min(px + 14, W - w) : px - 14 - w) + "px";
+      ptip.style.top = M.top + 4 + "px";
+      ptip.style.transform = "none";
+    } else {
+      ptip.classList.remove("show");
+    }
+
+    const hit = el("rect", { class: "p-hit", x: -6, y: 0, width: iw + 12, height: ih }, g);
+    const onMove = (ev) => {
+      const r = psvg.getBoundingClientRect();
+      const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left - M.left;
+      const md = Math.max(1, Math.min(34, Math.round((px / iw) * 33) + 1));
+      if (md !== state.pmd) { state.pmd = md; renderProgress(); }
+    };
+    hit.addEventListener("mousemove", onMove);
+    hit.addEventListener("touchstart", onMove, { passive: true });
+
+    const leg = [
+      `<span><i class="sw sw-line"></i>${CUR} (bis ${curMd}. Spieltag)</span>`,
+      `<span><i class="sw sw-gray"></i>Vorsaisons</span>`,
+      `<span><i class="sw sw-dash"></i>Schnitt</span>`,
+      `<span><i class="sw sw-range"></i>Beste bis schlechteste Saison</span>`,
+    ];
+    if (state.sel[0] !== null) leg.push(`<span><i class="sw sw-a"></i>A: ${data[state.sel[0]].season}</span>`);
+    if (state.sel[1] !== null) leg.push(`<span><i class="sw sw-b"></i>B: ${data[state.sel[1]].season}</span>`);
+    document.getElementById("progress-legend").innerHTML = leg.join("");
+    document.getElementById("progress-sub").textContent =
+      `Stand nach jedem Spieltag. ${CUR} gegen ${keys.length} Spielzeiten seit 2006/07. Markierte Saisons (A/B) erscheinen farbig.`;
+  }
+
+  psvg.addEventListener("mouseleave", () => { state.pmd = null; renderProgress(); });
+  document.getElementById("bl2-toggle").addEventListener("change", (e) => { state.bl2 = e.target.checked; renderProgress(); });
+
   function renderAll() {
     renderChart();
     renderDetail();
     renderCompare();
+    renderProgress();
     syncHoverClasses();
   }
 
@@ -476,11 +674,13 @@
   renderTabs();
   renderWdl();
   renderTable();
+  renderProgressTabs();
+  renderLive();
   renderAll();
 
   let raf;
   window.addEventListener("resize", () => {
     cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(renderChart);
+    raf = requestAnimationFrame(() => { renderChart(); renderProgress(); });
   });
 })();

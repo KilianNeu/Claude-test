@@ -132,31 +132,31 @@ main { padding-top: 24px; padding-bottom: 24px; display: grid; gap: 20px; }
 
 /* ---------- Chart ---------- */
 .chart-wrap { position: relative; width: 100%; }
-#chart { display: block; width: 100%; height: 380px; overflow: visible; }
-@media (max-width: 600px) { #chart { height: 300px; } }
-#chart text { font: 12px Inter, sans-serif; fill: var(--muted); }
-#chart .grid line { stroke: var(--grid); stroke-width: 1; }
-#chart .axis-x text { fill: var(--ink-2); }
-#chart .baseline { stroke: var(--line); stroke-width: 1; }
-#chart .band { fill: var(--band); }
-#chart .band-2 { fill: var(--surface-2); }
-#chart .band-label { font-size: 11px; fill: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-#chart .line { fill: none; stroke: var(--werder); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-#chart .dot { fill: var(--werder); stroke: var(--surface); stroke-width: 2; transition: r .12s; }
-#chart .bar { fill: var(--werder); opacity: .85; transition: opacity .12s; }
-#chart .bar.neg { fill: var(--loss); }
-#chart .bar.liga2 { fill: url(#hatch); opacity: 1; }
-#chart .col-hit { fill: transparent; cursor: pointer; }
-#chart .col-hover { fill: var(--hover); pointer-events: none; }
-#chart .sel-ring { fill: none; stroke-width: 2; pointer-events: none; }
-#chart .sel-a { stroke: var(--sel-a); }
-#chart .sel-b { stroke: var(--sel-b); }
-#chart .sel-tag { font: 700 11px Inter, sans-serif; fill: #fff; }
-#chart .sel-tag-bg.a { fill: var(--sel-a); }
-#chart .sel-tag-bg.b { fill: var(--sel-b); }
-#chart .val-label { font: 700 12px Inter, sans-serif; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
-#chart.dim .bar:not(.is-hover) { opacity: .45; }
-#chart.dim .bar.liga2:not(.is-hover) { opacity: .6; }
+.viz { display: block; width: 100%; height: 380px; overflow: visible; }
+@media (max-width: 600px) { .viz { height: 300px; } }
+.viz text { font: 12px Inter, sans-serif; fill: var(--muted); }
+.viz .grid line { stroke: var(--grid); stroke-width: 1; }
+.viz .axis-x text { fill: var(--ink-2); }
+.viz .baseline { stroke: var(--line); stroke-width: 1; }
+.viz .band { fill: var(--band); }
+.viz .band-2 { fill: var(--surface-2); }
+.viz .band-label { font-size: 11px; fill: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.viz .line { fill: none; stroke: var(--werder); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.viz .dot { fill: var(--werder); stroke: var(--surface); stroke-width: 2; transition: r .12s; }
+.viz .bar { fill: var(--werder); opacity: .85; transition: opacity .12s; }
+.viz .bar.neg { fill: var(--loss); }
+.viz .bar.liga2 { fill: url(#hatch); opacity: 1; }
+.viz .col-hit { fill: transparent; cursor: pointer; }
+.viz .col-hover { fill: var(--hover); pointer-events: none; }
+.viz .sel-ring { fill: none; stroke-width: 2; pointer-events: none; }
+.viz .sel-a { stroke: var(--sel-a); }
+.viz .sel-b { stroke: var(--sel-b); }
+.viz .sel-tag { font: 700 11px Inter, sans-serif; fill: #fff; }
+.viz .sel-tag-bg.a { fill: var(--sel-a); }
+.viz .sel-tag-bg.b { fill: var(--sel-b); }
+.viz .val-label { font: 700 12px Inter, sans-serif; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.viz.dim .bar:not(.is-hover) { opacity: .45; }
+.viz.dim .bar.liga2:not(.is-hover) { opacity: .6; }
 
 .tooltip {
   position: absolute; pointer-events: none; opacity: 0; transform: translate(-50%, -100%);
@@ -260,3 +260,32 @@ td .badge { font-size: 11px; padding: 2px 6px; border-radius: 99px; background: 
 
 .foot { color: var(--muted); font-size: 13px; padding-bottom: 40px; }
 .foot code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+/* ---------- Saisonverlauf ---------- */
+.live { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.live .stat { border-left: 3px solid var(--ink); }
+.live .stat .ctx { font-size: 12px; color: var(--ink-2); }
+.live .up { color: var(--win); } .live .down { color: var(--loss); }
+@media (max-width: 760px) { .live { grid-template-columns: repeat(2, minmax(0, 1fr)); } .live .stat:first-child { grid-column: 1 / -1; } }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--werder); margin: 0; }
+#progress { height: 420px; }
+@media (max-width: 600px) { #progress { height: 340px; } }
+.viz .p-band { fill: var(--muted); opacity: .12; }
+.viz .p-line { fill: none; stroke: var(--muted); stroke-width: 1; opacity: .35; }
+.viz .p-avg { fill: none; stroke: var(--ink-2); stroke-width: 2; stroke-dasharray: 6 5; }
+.viz .p-hi { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.viz .p-hi.a { stroke: var(--sel-a); } .viz .p-hi.b { stroke: var(--sel-b); } .viz .p-hi.h { stroke: var(--werder); opacity: .7; }
+.viz .p-cur { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.viz .p-cur-dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+.viz .p-end { font: 700 12px Inter, sans-serif; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.viz .p-end.cur { fill: var(--ink); } .viz .p-end.a { fill: var(--sel-a); } .viz .p-end.b { fill: var(--sel-b); }
+.viz .p-cross { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 3; }
+.viz .p-hit { fill: transparent; cursor: crosshair; }
+.viz .p-mark { stroke: var(--surface); stroke-width: 2; }
+.sw-line { width: 18px; height: 3px; border-radius: 2px; background: var(--ink); }
+.sw-gray { width: 18px; height: 2px; background: var(--muted); opacity: .5; }
+.sw-dash { width: 18px; height: 0; border-top: 2px dashed var(--ink-2); border-radius: 0; background: none; }
+.sw-range { background: var(--muted); opacity: .25; }
+.tooltip .t-row { display: flex; justify-content: space-between; gap: 14px; }
+.tooltip .t-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
