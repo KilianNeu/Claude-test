@@ -7,6 +7,7 @@ Inoffizielle Fan-Statistikseite: die letzten 20 Ligaspielzeiten von Werder Breme
 - **Klick** markiert eine Saison (A und B) für den direkten Vergleich
 - **Saisonverlauf**: laufende Saison Spieltag für Spieltag gegen die letzten 20 Jahre (Punkte, Platz, Tordifferenz), mit Schnitt, Spannweite und Hochrechnung
 - Bilanz (Siege/Unentschieden/Niederlagen) und sortierbare Tabelle
+- **Saison 2026/27**: Ergebnisse, Bestenlisten, kompletter Kader mit Minuten, Ein-/Auswechslungen, Noten, xG, xA, Pässen, Zweikämpfen, Defensive und Torhüterwerten (gesamt oder pro 90 Minuten), Spieler-Steckbriefe und Bundesliga-Tabelle
 - **Spieler**: Rekordtorschützen, Rekordspieler, Vorlagengeber, Karten
 - **Transfers**: teuerste Ein- und Verkäufe, Rückkehrer
 - **Titel**: Meisterschaften, Pokalsiege, Torschützenkönige
@@ -23,3 +24,13 @@ Alle Saisondaten liegen in [`assets/seasons.js`](assets/seasons.js), die Spieler
 Settings → Pages → „Deploy from a branch“ → Branch wählen, Ordner `/ (root)`.
 
 Der Spieltagsverlauf steht in [`assets/verlauf.js`](assets/verlauf.js). Die letzte Saison darin gilt als laufende Saison: nach jedem Spieltag die Arrays `pts`, `gf`, `ga` und `rank` um einen Wert verlängern, der Rest der Seite rechnet sich neu.
+
+## Laufende Saison aktualisieren
+
+Die Werte der laufenden Saison kommen von FotMob. Nach einem Spieltag:
+
+```
+python3 tools/update_fotmob.py
+```
+
+Das Skript schreibt `assets/kader.js` neu und verlängert die laufende Saison in `assets/verlauf.js`. Die Daten gehören FotMob, die Seite nennt sie als Quelle.

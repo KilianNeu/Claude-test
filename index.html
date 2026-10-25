@@ -27,6 +27,7 @@
     <div class="wrap topnav-inner">
       <a class="brand" href="#top"><span class="brand-raute" aria-hidden="true"></span>Werder Statistik</a>
       <div class="navlinks" id="navlinks">
+        <a href="#aktuell">2026/27</a>
         <a href="#saisons">Saisons</a>
         <a href="#verlauf">Saisonverlauf</a>
         <a href="#spieler">Spieler</a>
@@ -37,6 +38,53 @@
   </nav>
 
   <main class="wrap">
+    <section class="block current" id="aktuell">
+      <div class="current-hero" id="cur-hero"></div>
+      <div class="leaders" id="leaders"></div>
+
+      <article class="card" id="kader-card">
+        <div class="card-head">
+          <div>
+            <h2>Kader im Detail</h2>
+            <p class="sub">Alle Bundesliga-Werte der Saison. Spalte anklicken zum Sortieren, Spieler anklicken für den Steckbrief.</p>
+          </div>
+          <div class="kader-controls">
+            <div class="seg" role="tablist" aria-label="Werte-Gruppe" id="kader-tabs"></div>
+          </div>
+        </div>
+        <div class="kader-options">
+          <div class="seg small" role="tablist" aria-label="Zählweise" id="kader-mode"></div>
+          <label class="check"><input type="checkbox" id="kader-all"> Spieler ohne Einsatz zeigen</label>
+          <span class="heat-legend"><i></i>Farbe: Perzentil im Bundesliga-Vergleich laut FotMob, dunkler ist besser</span>
+        </div>
+        <div class="table-scroll kader-scroll">
+          <table id="kader-table" class="kader"></table>
+        </div>
+        <div class="pcard" id="pcard" aria-live="polite"></div>
+      </article>
+
+      <div class="grid-2 wide-left">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <h2 id="scatter-title">Menge gegen Quote</h2>
+              <p class="sub" id="scatter-sub">Jeder Punkt ist ein Spieler mit mindestens 90 Minuten.</p>
+            </div>
+            <div class="seg" role="tablist" aria-label="Vergleich wählen" id="scatter-tabs"></div>
+          </div>
+          <div class="chart-wrap">
+            <svg id="scatter" class="viz" role="img" aria-labelledby="scatter-title scatter-sub"></svg>
+            <div class="tooltip" id="stip" role="status" aria-live="polite"></div>
+          </div>
+        </article>
+        <article class="card">
+          <h2>Bundesliga-Tabelle</h2>
+          <p class="sub">Mit erwarteten Punkten (xPkt.) nach der Qualität der Chancen</p>
+          <div class="table-scroll"><table id="bl-table" class="bl-table"></table></div>
+        </article>
+      </div>
+    </section>
+
     <div class="anchor" id="saisons"></div>
     <section class="kpis" id="kpis" aria-label="Kennzahlen"></section>
 
@@ -152,7 +200,9 @@
   <script src="assets/seasons.js"></script>
   <script src="assets/verlauf.js"></script>
   <script src="assets/rekorde.js"></script>
+  <script src="assets/kader.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/rekorde-app.js"></script>
+  <script src="assets/aktuell.js"></script>
 </body>
 </html>
