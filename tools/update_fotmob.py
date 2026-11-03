@@ -287,9 +287,39 @@ def update_verlauf(fixtures, werder_row):
     print(f"  verlauf.js: {len(pts)} Spieltage")
 
 
+def unchanged_since_last_run(team):
+    """True, wenn seit dem letzten Lauf kein Bundesliga-Spiel dazugekommen ist und der Stand jünger als 7 Tage ist."""
+    path = os.path.join(ROOT, "assets", "kader.js")
+    if "--force" in sys.argv or not os.path.exists(path):
+        return False
+    old = open(path, encoding="utf-8").read()
+    m = re.search(r'"fetched":"(\d{4}-\d{2}-\d{2})"', old)
+    if not m:
+        return False
+    age = (datetime.date.today() - datetime.date.fromisoformat(m.group(1))).days
+    done_now = sum(1 for f in team["fixtures"]["allFixtures"]["fixtures"]
+                   if (f.get("tournament") or {}).get("leagueId") == LEAGUE_ID and f["status"].get("finished"))
+    return done_now == old.count('"done":true') and age < 7
+
+
+def print_next_kickoff(team):
+    upcoming = sorted((f for f in team["fixtures"]["allFixtures"]["fixtures"]
+                       if (f.get("tournament") or {}).get("leagueId") == LEAGUE_ID and not f["status"].get("finished")),
+                      key=lambda f: f["status"]["utcTime"])
+    if upcoming:
+        f = upcoming[0]
+        print(f"  NEXT_KICKOFF {f['status']['utcTime'][:19]}Z {f['home']['name']} - {f['away']['name']}")
+    else:
+        print("  NEXT_KICKOFF none")
+
+
 def main():
     ctx = ssl_context()
     team = get(f"https://www.fotmob.com/api/data/teams?id={TEAM_ID}&ccode3=DEU", ctx)
+    if unchanged_since_last_run(team):
+        print("  KEINE_NEUEN_SPIELE: Daten unverändert, nichts zu tun (mit --force trotzdem laden)")
+        print_next_kickoff(team)
+        return
     squad = {}
     for g in team["squad"]["squad"]:
         if g["title"] == "coach":
