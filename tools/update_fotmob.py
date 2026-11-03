@@ -309,7 +309,7 @@ def main():
             continue
         st = m["status"]
         done = bool(st.get("finished"))
-        fixtures.append({"id": m.get("id"), "date": st["utcTime"][:10], "home": m["home"]["name"], "away": m["away"]["name"],
+        fixtures.append({"id": m.get("id"), "date": st["utcTime"][:10], "utc": st["utcTime"][:19] + "Z", "home": m["home"]["name"], "away": m["away"]["name"],
                          "homeId": m["home"]["id"], "awayId": m["away"]["id"],
                          "hs": m["home"].get("score") if done else None, "as": m["away"].get("score") if done else None,
                          "done": done})
@@ -334,6 +334,9 @@ def main():
         fh.write("window.KADER = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";\n")
     print(f"  kader.js: {len(players)} Spieler, {sum(1 for p in players if p['apps'])} mit Einsatz")
     update_verlauf(fixtures, werder_row)
+    # Für die Planung des nächsten Laufs: Anstoß des nächsten offenen Bundesliga-Spiels (UTC)
+    nxt = next((fx for fx in sorted(fixtures, key=lambda f: f["utc"]) if not fx["done"]), None)
+    print("  NEXT_KICKOFF " + (f"{nxt['utc']} {nxt['home']} - {nxt['away']}" if nxt else "none"))
 
     # Spielberichte aller gespielten Bundesliga-Spiele
     matches = []
